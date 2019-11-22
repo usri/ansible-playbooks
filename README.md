@@ -21,9 +21,9 @@ ansible-playbook -i inventory migration-tools.yml -c paramiko -v --ask-vault-pas
 
 ### ASR
 
-This role will install the ASR Migration agent. Please see the README file
+This role will install the ASR Mobility Services agent. Please see the README file
 inside the role directory for the needed information necessary to use this
-role. Please review the inventory file in this repository in conjunction with
+role. Also, review the inventory file in this repository in conjunction with
 the README file in the specific role directory for examples of the information
 needed by the playbook during execution.
 

@@ -21,7 +21,24 @@ automatically during the install process
 The inventory file in the root directory of this repository contains examples that will be useful when 
 constructing an inventory file.
 
-## ASR Configuration Server
-The mobility agent will need to connect to an ASR Configuration Server before replication can occur.  
+## ASR Configuration Server 
+
+The mobility agent will need to connect to an ASR Configuration Server before
+replication can occur. In order for the agent to establish this connection the
+agent must know the configuration server's IP address as well as the passphrase
+of the configuration server. Both of these are parameters that can be set in the
+inventory file.
+
+The passphrase file must be in encrypted format using ansible-vault. To do this 
+store the Configuration Server password in a plain text file such as
+"passphrase.secret".  Execute the following command to encrypt the file:
+```
+ansible-vault encrypt passphrase.secret
+```
+
+In order to edit the file in the future you can use the following command:
+```
+ansible-vault edit passphrase.secret
+```
 
 

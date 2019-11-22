@@ -36,5 +36,5 @@ supported distros are:
 * Oracle Linux (7.6 and 7.7)
 * Ubuntu (16.04 and 18.04)
 
-#IMPORTANT NOTE
+# IMPORTANT NOTE
 Use at your own risk

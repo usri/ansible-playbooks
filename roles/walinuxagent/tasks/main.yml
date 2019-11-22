@@ -1,0 +1,50 @@
+---
+
+- name: Enable Addon Repo in 7.7
+  ini_file:
+      path: /etc/yum.repos.d/oracle-linux-ol7.repo
+      section: ol7_addons
+      option: enabled
+      value: 1
+      mode: 544
+      backup: yes
+  when: ansible_distribution == "OracleLinux" and ansible_distribution_version == "7.7" 
+
+- name: Enable Addon Repo in 7.6
+  ini_file:
+      path: /etc/yum.repos.d/public-yum-ol7.repo
+      section: ol7_addons
+      option: enabled
+      value: 1
+      mode: 544
+      backup: yes
+  when: ansible_distribution == "OracleLinux" and ansible_distribution_version == "7.6" 
+
+- name: Ensure packages are installed
+  yum:
+      name: 
+        - WALinuxAgent
+      state: latest
+  when: ansible_distribution == "OracleLinux" and ansible_distribution_version == "7.6" 
+
+- name: Ensure packages are installed if Ubuntu
+  apt:
+      name: 
+        - walinuxagent
+      state: latest
+  when: ansible_distribution == "Ubuntu"
+
+- name: Start service
+  systemd:
+      name: walinuxagent
+      state: restarted
+      enabled: yes
+  when: ansible_distribution == "Ubuntu"
+
+- name: Start service
+  systemd:
+      name: waagent
+      state: restarted
+      enabled: yes
+  when: ansible_distribution == "OracleLinux" and ansible_distribution_version == "7.6" 
+

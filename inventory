@@ -1,0 +1,33 @@
+[all:vars]
+
+[oel7.7-asr-agent]
+192.168.1.57
+
+[oel7.6-asr-agent]
+192.168.1.60
+
+[ubuntu-asr-agent]
+192.168.1.63
+
+[oel-asr-agent:children]
+oel7.7-asr-agent
+oel7.6-asr-agent
+
+[asr-agent:children]
+oel-asr-agent
+ubuntu-asr-agent
+
+[asr-agent:vars]
+MSFT_ASR_AGENT_VERSION=9.30.0.0
+MSFT_ASR_DIR=/usr/local/ASR
+MSFT_ASR_CONFIG_SERVER=192.168.1.48
+MSFT_ASR_CONFIG_SERVER_PASS_FILE=passphrase.secret
+
+[oel-asr-agent:vars]
+MSFT_ASR_AGENT=Microsoft-ASR_UA_{{ MSFT_ASR_AGENT_VERSION }}_OL7-64_GA_22Oct2019_Release.tar.gz
+REBOOT_IF_NEEDED=false
+
+[ubuntu-asr-agent:vars]
+MSFT_ASR_AGENT=Microsoft-ASR_UA_{{ MSFT_ASR_AGENT_VERSION }}_UBUNTU-16.04-64_GA_22Oct2019_Release.tar.gz
+REBOOT_IF_NEEDED=true
+

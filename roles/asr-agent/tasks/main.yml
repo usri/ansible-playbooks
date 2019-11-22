@@ -1,0 +1,80 @@
+---
+
+- set_fact:
+      asr_target_version: "{{ MSFT_ASR_AGENT_VERSION }}"
+      should_reboot: "{{ REBOOT_IF_NEEDED }}"
+
+- name: ensure /tmp/ASR directory exists
+  file: 
+      path: /tmp/ASR 
+      state: directory
+
+- name: See if Agent is already installed
+  stat: 
+      path: /usr/local/.vx_version
+  register: asr_exists
+
+- name: What version is installed if there
+  shell: |
+      grep ^VERSION= /usr/local/.vx_version | cut -d"=" -f2 | tr -d " "
+  register:
+      asr_version
+  when: asr_exists.stat.exists == True
+
+- name: What is the status of the previous install if there
+  shell: |
+      grep ^AGENT_CONFIGURATION_STATUS= /usr/local/.vx_version | cut -d"=" -f2 | tr -d " "
+  register:
+      asr_status
+  when: asr_exists.stat.exists == True
+
+- name: Move agent onto server (Requires agent bundle in files dir)
+  unarchive: 
+      src: "{{ MSFT_ASR_AGENT }}"
+      dest: /tmp/ASR
+      copy: yes
+  when: (asr_exists.stat.exists == False) or 
+        (asr_version.stdout != asr_target_version) or
+        (asr_status.stdout != "Succeeded")
+
+- name: Install ASR Agent (Don't install it if the latest is already there)
+  command: 
+      cmd: ./install -q -d {{ MSFT_ASR_DIR }} -r MS -v VmWare
+      chdir: /tmp/ASR
+  register: install_output
+  when: (asr_exists.stat.exists == False) or 
+        (asr_version.stdout != asr_target_version) or
+        (asr_status.stdout != "Succeeded")
+  ignore_errors: true
+  failed_when: (install_output.rc != 0) and
+               (install_output.rc != 209)
+
+- name: Reboot if requested
+  reboot:
+  when: (should_reboot) and 
+        (install_output is changed) and
+        (install_output.rc == 209)
+
+- name: Get out if reboot is required but not allowed
+  fail:
+      msg: "The System Requires a Reboot before proceeding"
+  when: (not should_reboot) and 
+        (install_output is changed) and 
+        (install_output.rc == 209)
+
+- name: Copy over Config server password file
+  copy:
+      src: "{{ MSFT_ASR_CONFIG_SERVER_PASS_FILE }}"
+      dest: "{{ MSFT_ASR_DIR }}"
+      mode: 0600
+      owner: root
+      group: root
+
+- name: Configure ASR Agent
+  command: 
+      cmd: "{{ MSFT_ASR_DIR }}/Vx/bin/UnifiedAgentConfigurator.sh -i {{ MSFT_ASR_CONFIG_SERVER }} -P {{ MSFT_ASR_DIR }}/{{ MSFT_ASR_CONFIG_SERVER_PASS_FILE }}"
+
+- name: Cleanup
+  file:
+      path: /tmp/ASR
+      state: absent

@@ -14,7 +14,8 @@ inventory file.  To add debugging information you can also include -vvv
 # machines.  Paramiko is a python implementation of ssh included with Ansble.
 # You can also use the Linux ssh client but will also need to install sshpass
 
-ansible-playbook -i inventories/inventory migration-tools.yml -c paramiko -v --ask-vault-pass -k -u admin -K  
+ansible-playbook -i inventories/inventory migration-tools.yml \
+  -c paramiko -v --ask-vault-pass -k -u admin -K  
 ```
 
 ## Roles
